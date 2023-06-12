@@ -4,18 +4,18 @@
     {
         static void Main(string[] args)
         {
-            VM VM = new VM();   
+            VM VM = new VM();
             var program = new List<int>()
-            {
-                (int)InstructionSet.PUSH,5,
-                (int)InstructionSet.PUSH,6,
-                (int)InstructionSet.ADD,
-                (int)InstructionSet.POP,
-                (int)InstructionSet.HALT
-            };
+    {
+        (int)InstructionSet.PUSH,5,
+        (int)InstructionSet.PUSH,6,
+        (int)InstructionSet.ADD,
+        (int)InstructionSet.POP,
+        (int)InstructionSet.HALT
+    };
             VM.Run(program.ToArray());
             Console.ReadLine();
-       }
+        }
     }
     public class VM
     {
