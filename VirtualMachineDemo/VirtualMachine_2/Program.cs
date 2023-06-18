@@ -8,27 +8,40 @@
         static void Main(string[] args)
         {
             VM VM = new VM();
+            bool mark = true;//可以修改if条件
+            var result = 0;
+
+            if (!mark)
+            {
+                result = ((((10 + 4) - 2) * 6) / 5);
+            }
+            else
+            {
+                result = (((4 - 2) * 6) / 5);
+            }
+            Console.WriteLine($"所要达到的结果:{result}");
             var program = new List<int>()
             {
-                (int)InstructionSet.IF,(int)Register.B,0,6,
-                (int)InstructionSet.PUSH,1,
-                (int)InstructionSet.PUSH,2,
-                (int)InstructionSet.PUSH,3,
+                (int)InstructionSet.SET,(int)Register.F,mark ? 0:1,
+                (int)InstructionSet.IF,(int)Register.F,0,14,
+                (int)InstructionSet.PUSH,10,
                 (int)InstructionSet.PUSH,4,
-                (int)InstructionSet.PUSH,5,
-                (int)InstructionSet.PUSH,6,
-                (int)InstructionSet.PUSH,7,
-                (int)InstructionSet.PUSH,8,
                 (int)InstructionSet.ADD,
-                (int)InstructionSet.MUL,
-                (int)InstructionSet.DIV,
+                (int)InstructionSet.JMP,16,
+                (int)InstructionSet.PUSH,4,
+                (int)InstructionSet.PUSH,2,
                 (int)InstructionSet.SUB,
-                (int)InstructionSet.POP,
-                (int)InstructionSet.SET,(int)Register.C,2,
+                (int)InstructionSet.PUSH,6,
+                (int)InstructionSet.MUL,
+                (int)InstructionSet.PUSH,5,
+                (int)InstructionSet.DIV,
+                (int)InstructionSet.LDR,(int)Register.A,
+                (int)InstructionSet.LOGR,(int)Register.A,
+                (int)InstructionSet.SET,(int)Register.C,9,
                 (int)InstructionSet.LOGR,(int)Register.C,
-                (int)InstructionSet.MOV,(int)Register.B,(int)Register.A,
+                (int)InstructionSet.MOV,(int)Register.B,(int)Register.C,
                 (int)InstructionSet.STR,(int)Register.B,
-                (int)InstructionSet.LDR,(int)Register.C,
+                (int)InstructionSet.LDR,(int)Register.D,
                 (int)InstructionSet.HALT
             };
             VM.Run(program.ToArray());
@@ -54,6 +67,7 @@
         /// 寄存器
         /// </summary>
         public int[] Registers = new int[Enum.GetNames(typeof(Register)).Length];
+        public bool IsJump { get; set; }
         public void Run(int[] Instructions)
         {
             Start();
@@ -61,7 +75,14 @@
             {
                 int instruction = Instructions[IP];
                 Eval((InstructionSet)instruction, Instructions);
-                IP++;
+                if (!IsJump)
+                {
+                    IP++;
+                }
+                else
+                {
+                    IsJump = false;
+                }
             }
             PrintStack();
             PrintRegisters();
@@ -149,13 +170,14 @@
                     break;
                 case InstructionSet.MOV:
                     {
+                        IP++;
                         //将一个寄存器的值，放入到另外一个寄存器里
                         //目标寄存器
                         int dr = Instructions[IP];
+
                         IP++;
                         //源寄存器
                         int sr = Instructions[IP];
-                        IP++;
 
                         //目标寄存器的值为源寄存器的值
                         Registers[dr] = Registers[sr];
@@ -163,52 +185,63 @@
                     break;
                 case InstructionSet.STR:
                     {
+                        IP++;
                         //将指定寄存器中的参数，放入栈中
                         int r = Instructions[IP];
-                        IP++;
+                        StackPointer++;
                         Stack[StackPointer] = Registers[r];
                     }
                     break;
                 case InstructionSet.LDR:
                     {
                         int value = Stack[StackPointer];
-                        int r = Instructions[IP];
                         IP++;
+                        int r = Instructions[IP];
                         Registers[r] = value;
                     }
                     break;
                 case InstructionSet.IF:
                     {
                         //如果寄存器的值和后面的数值相等，则跳转
+                        IP++;
                         int r = Instructions[IP];
                         IP++;
                         if (Registers[r] == Instructions[IP])
                         {
                             IP++;
                             IP = Instructions[IP];
+                            IsJump = true;
                             Console.WriteLine($"jump if :{IP}");
                         }
                         else
                         {
-                            IP++;
                             IP++;
                         }
                     }
                     break;
                 case InstructionSet.SET:
                     {
+                        IP++;
                         int r = Instructions[IP];
                         IP++;
                         int value = Instructions[IP];
-                        IP++;
                         Registers[r] = value;
                     }
                     break;
                 case InstructionSet.LOGR:
                     {
-                        int r = Instructions[IP + 1];
+                        IP++;
+                        int r = Instructions[IP];
                         int value = Registers[r];
-                        Console.WriteLine($"log register_{r} {value}");
+                        Console.WriteLine($"log register_{(Register)r} {value}");
+                    }
+                    break;
+                case InstructionSet.JMP:
+                    {
+                        IP++;
+                        IP = Instructions[IP];
+                        IsJump = true;
+                        Console.WriteLine($"jump if :{IP}");
                     }
                     break;
             }
@@ -219,10 +252,11 @@
             IP = 0;
             Stack = new int[256];
             StackPointer = -1;
+            Registers = new int[Enum.GetNames(typeof(Register)).Length];
         }
         public void PrintStack()
         {
-            Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}=========begin print stack:========={Environment.NewLine}");
+            Console.WriteLine($"{Environment.NewLine}=========begin print stack:=========");
             for (int i = 0; i <= StackPointer; i++)
             {
                 Console.WriteLine($"{Stack[i]}");
@@ -231,17 +265,17 @@
                     Console.WriteLine();
                 }
             }
-            Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}=========begin stack done:========={Environment.NewLine}");
+            Console.WriteLine($"=========begin stack done:=========");
 
         }
         public void PrintRegisters()
         {
-            Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}=========begin print registers:========={Environment.NewLine}");
+            Console.WriteLine($"{Environment.NewLine}=========begin print registers:=========");
             for (int i = 0; i < Registers.Length; i++)
             {
-                Console.WriteLine($"{Registers[i]}");
+                Console.WriteLine($"{(Register)i}:{Registers[i]}");
             }
-            Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}=========begin registers done:========={Environment.NewLine}");
+            Console.WriteLine($"=========begin registers done:=========");
         }
     }
     public enum Register
@@ -314,6 +348,10 @@
         /// 打印寄存器中的数据
         /// </summary>
         LOGR,
+        /// <summary>
+        /// 无条件跳转
+        /// </summary>
+        JMP,
         /// <summary>
         /// 虚拟机停止运行
         /// </summary>

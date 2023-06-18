@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualMachine_1", "Virtual
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualMachine_2", "VirtualMachine_2\VirtualMachine_2.csproj", "{AFB0AA44-E82D-4DC6-A80C-663E0D8EC3D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{B41FBF81-FE9B-454F-8633-1C1AA4B28ECB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{B41FBF81-FE9B-454F-8633-1C1AA4B28ECB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestC", "TestC\TestC.vcxproj", "{EA72D294-20B3-4EA0-82D7-E53539155F2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VirualMachine_2", "VirualMachine_2", "{2A157847-0E6A-4007-9B1E-B89EBD3C6553}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +74,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AFB0AA44-E82D-4DC6-A80C-663E0D8EC3D3} = {2A157847-0E6A-4007-9B1E-B89EBD3C6553}
+		{B41FBF81-FE9B-454F-8633-1C1AA4B28ECB} = {2A157847-0E6A-4007-9B1E-B89EBD3C6553}
+		{EA72D294-20B3-4EA0-82D7-E53539155F2F} = {2A157847-0E6A-4007-9B1E-B89EBD3C6553}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7618D784-00B1-45CA-836D-21D03EBADB9C}
