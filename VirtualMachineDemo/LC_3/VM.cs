@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LC_3.Instruction;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,9 +41,32 @@ namespace LC_3
         /// 标志寄存器
         /// </summary>
         public FlagRegister COND { get; set; }
-        public void Run()
+        public void Run(Dictionary<int, ACommand> program)
         {
-            
+
+        }
+        /// <summary>
+        /// load asm
+        /// </summary>
+        public ACommand[] LoadAsm(string asm)
+        {
+
+        }
+        /// <summary>
+        /// load bin 
+        /// 二进制
+        /// </summary>
+        public ACommand[] LoadBin(string filename)
+        {
+
+        }
+        /// <summary>
+        /// load bin 
+        /// 二进制
+        /// </summary>
+        public ACommand[] LoadBin(List<int> bincode)
+        {
+
         }
     }
     /// <summary>
@@ -94,7 +118,7 @@ namespace LC_3
         /// <summary>
         /// 跳转到寄存器
         /// </summary>
-        JSR = 4,
+        JSR = 4,    
         /// <summary>
         /// 与运算
         /// </summary>
@@ -107,6 +131,9 @@ namespace LC_3
         /// 存储寄存器
         /// </summary>
         STR = 7,
+        /// <summary>
+        /// 备用
+        /// </summary>
         RTI = 8,
         /// <summary>
         /// 取反
@@ -133,7 +160,7 @@ namespace LC_3
         /// </summary>
         LEA = 14,
         /// <summary>
-        /// 陷阱，中断
+        /// 陷阱，中断，系统函数调用
         /// </summary>
         TRAP = 15
     }
