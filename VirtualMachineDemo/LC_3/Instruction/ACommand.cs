@@ -15,6 +15,12 @@ namespace LC_3.Instruction
         {
             this.InstructionSet = InstructionSet;
         }
+        public string LableName { get; set; }
         public InstructionSet InstructionSet { get; private set; }
+        public abstract int ToBin();
+        public abstract string ToASM();
+        public abstract void BinToCommand(string bin);
+        public abstract void BinToCommand(int bin);
+        public abstract void ASMToCommand(string asm);
     }
 }
