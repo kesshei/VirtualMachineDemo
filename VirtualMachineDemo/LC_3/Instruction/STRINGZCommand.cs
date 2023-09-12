@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace LC_3.Instruction
 {
-    public class JMPCommand : ACommand
+    public class STRINGZCommand : ACommand
     {
-        public JMPCommand() : base(InstructionSet.JMP)
+        public STRINGZCommand() : base(InstructionSet.STRINGZ)
         {
         }
-        public Registers BaseR { get; set; }
-
-        public bool RET { get { return (int)BaseR == 111; } }
 
         public override void ASMToCommand(string asm)
         {

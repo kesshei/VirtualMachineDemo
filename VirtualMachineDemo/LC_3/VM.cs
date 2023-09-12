@@ -48,25 +48,29 @@ namespace LC_3
         /// <summary>
         /// load asm
         /// </summary>
-        public ACommand[] LoadAsm(string asm)
+        public static ACommand[] LoadAsm(string[] asm)
         {
+            foreach (var item in asm)
+            {
 
+            }
+            return null;
         }
         /// <summary>
         /// load bin 
         /// 二进制
         /// </summary>
-        public ACommand[] LoadBin(string filename)
+        public static ACommand[] LoadBin(string[] bincode)
         {
-
+            return null;
         }
         /// <summary>
         /// load bin 
         /// 二进制
         /// </summary>
-        public ACommand[] LoadBin(List<int> bincode)
+        public static ACommand[] LoadBin(List<int> bincode)
         {
-
+            return null;
         }
     }
     /// <summary>
@@ -162,6 +166,26 @@ namespace LC_3
         /// <summary>
         /// 陷阱，中断，系统函数调用
         /// </summary>
-        TRAP = 15
+        TRAP = 15,
+        /// <summary>
+        /// 告诉汇编器将程序放在内存的哪个位置。
+        /// </summary>
+        ORIG = 100,
+        /// <summary>
+        /// 占用一个地址，并往地址所指向的内存单元填充初始值。 
+        /// </summary>
+        FILL,
+        /// <summary>
+        /// 占用连续的地址空间。
+        /// </summary>
+        BLKW,
+        /// <summary>
+        /// 连续占用地址空间，并对其初始化，内存最后一个单元被置为x0000，类似C语言的/0。
+        /// </summary>
+        STRINGZ,
+        /// <summary>
+        /// 源程序结束。 
+        /// </summary>
+        END
     }
 }
