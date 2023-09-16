@@ -35,7 +35,7 @@ namespace LC_3.Instruction
             throw new NotImplementedException();
         }
 
-        public override int ToBin()
+        public override string ToBin()
         {
             throw new NotImplementedException();
         }

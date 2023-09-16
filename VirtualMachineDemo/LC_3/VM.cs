@@ -62,7 +62,150 @@ namespace LC_3
         /// </summary>
         public static ACommand[] LoadBin(string[] bincode)
         {
-            return null;
+            var aCommands = new List<ACommand>();
+            if (bincode.Where(t => t.Length != 16).Any())
+            {
+                throw new Exception("非二进制码");
+            }
+            foreach (var item in bincode)
+            {
+                InstructionSet set = (InstructionSet)Convert.ToInt32(new string(item.Take(4).ToArray()), 2);
+                ACommand aCommand = null;
+                switch (set)
+                {
+                    case InstructionSet.BR:
+                        {
+                            aCommand = new BRCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.ADD:
+                        {
+                            aCommand = new ADDCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.LD:
+                        {
+                            aCommand = new LDCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.ST:
+                        {
+                            aCommand = new STCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.JSR:
+                        {
+                            aCommand = new JSRCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.AND:
+                        {
+                            aCommand = new ANDCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.LDR:
+                        {
+                            aCommand = new LDRCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.STR:
+                        {
+                            aCommand = new STRCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.RTI:
+                        {
+                            aCommand = new RTICommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.NOT:
+                                            {
+                            aCommand = new NOTCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.LDI:
+                        {
+                            aCommand = new LDICommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.STI:
+                        {
+                            aCommand = new STICommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.JMP:
+                        {
+                            aCommand = new JMPCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.RES:
+                        {
+                            aCommand = new RESCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.LEA:
+                        {
+                            aCommand = new LEACommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.TRAP:
+                        {
+                            aCommand = new TRAPCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.ORIG:
+                        {
+                            aCommand = new ORIGCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.FILL:
+                        {
+                            aCommand = new FILLCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.BLKW:
+                        {
+                            aCommand = new BLKWCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.STRINGZ:
+                        {
+                            aCommand = new STRINGZCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                    case InstructionSet.END:
+                        {
+                            aCommand = new ENDCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                        break;
+                }
+                if (aCommand != null)
+                {
+                    aCommands.Add(aCommand);
+                }
+            }
+            return aCommands.ToArray();
         }
         /// <summary>
         /// load bin 
@@ -122,7 +265,7 @@ namespace LC_3
         /// <summary>
         /// 跳转到寄存器
         /// </summary>
-        JSR = 4,    
+        JSR = 4,
         /// <summary>
         /// 与运算
         /// </summary>

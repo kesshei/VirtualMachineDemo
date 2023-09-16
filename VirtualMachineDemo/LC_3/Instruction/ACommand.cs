@@ -14,10 +14,12 @@ namespace LC_3.Instruction
         public ACommand(InstructionSet InstructionSet)
         {
             this.InstructionSet = InstructionSet;
+            bitInfo = new BitInfo(this);
         }
+        public BitInfo bitInfo { get; set; }
         public string LableName { get; set; }
         public InstructionSet InstructionSet { get; private set; }
-        public abstract int ToBin();
+        public abstract string ToBin();
         public abstract string ToASM();
         public abstract void BinToCommand(string bin);
         public abstract void BinToCommand(int bin);

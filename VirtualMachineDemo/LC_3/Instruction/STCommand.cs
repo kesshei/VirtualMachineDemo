@@ -10,7 +10,10 @@ namespace LC_3.Instruction
     {
         public STCommand() : base(InstructionSet.ST)
         {
-        }   
+            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+            bitInfo.AddInfo(nameof(this.SR), 11, 9);
+            bitInfo.AddInfo(nameof(this.PC), 8, 0);
+        }
         /// <summary>
         /// 目标寄存器
         /// </summary>
@@ -24,7 +27,12 @@ namespace LC_3.Instruction
 
         public override void BinToCommand(string bin)
         {
-            throw new NotImplementedException();
+            bitInfo.BinToCommand(bin);
+            var code = ToBin();
+            if (code == bin)
+            {
+                Console.WriteLine($"{nameof(STCommand)}编码解析成功!");
+            }
         }
 
         public override void BinToCommand(int bin)
@@ -37,9 +45,9 @@ namespace LC_3.Instruction
             throw new NotImplementedException();
         }
 
-        public override int ToBin()
+        public override string ToBin()
         {
-            throw new NotImplementedException();
+          return  bitInfo.ToBin();
         }
     }
 }
