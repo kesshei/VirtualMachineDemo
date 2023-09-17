@@ -20,16 +20,16 @@ namespace LC_3.Instruction
         /// <summary>
         /// 目的寄存器
         /// </summary>
-        public Registers DR { get; }
+        public Registers DR { get; set; }
         /// <summary>
         /// 源寄存器1
         /// </summary>
-        public Registers SR1 { get; }
-        public bool IsImmediateNumber { get; }
-        public int ImmediateNumber { get; private set; }
+        public Registers SR1 { get; set; }
+        public bool IsImmediateNumber { get; set; }
+        public int ImmediateNumber { get; set; }
         /// <summary>
         /// 源寄存器2
         /// </summary>
-        public Registers SR2 { get; }
+        public Registers SR2 { get; set; }
     }
 }

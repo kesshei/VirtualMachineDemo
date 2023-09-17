@@ -41,7 +41,7 @@ namespace LC_3
         /// 标志寄存器
         /// </summary>
         public FlagRegister COND { get; set; }
-        public void Run(Dictionary<int, ACommand> program)
+        public void Run(ACommand[] program)
         {
 
         }
@@ -62,6 +62,7 @@ namespace LC_3
         /// </summary>
         public static ACommand[] LoadBin(string[] bincode)
         {
+            bincode = bincode.Select(t => new string(t.Take(16).ToArray())).ToArray();
             var aCommands = new List<ACommand>();
             if (bincode.Where(t => t.Length != 16).Any())
             {
@@ -166,7 +167,15 @@ namespace LC_3
                     case InstructionSet.TRAP:
                         {
                             aCommand = new TRAPCommand();
-                            aCommand.BinToCommand(item);
+                            if (aCommand.Check(item))
+                            {
+                                aCommand.BinToCommand(item);
+                            }
+                            else
+                            {
+                                aCommand = new AddressCommand();
+                                aCommand.BinToCommand(item);
+                            }
                         }
                         break;
                     case InstructionSet.ORIG:
@@ -329,6 +338,7 @@ namespace LC_3
         /// <summary>
         /// 源程序结束。 
         /// </summary>
-        END
+        END,
+        Address
     }
 }

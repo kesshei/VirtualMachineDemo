@@ -20,7 +20,7 @@ namespace LC_3.Instruction
             this.ACommand = aCommand;
         }
         public List<(int start, int end)> defaultValue = new List<(int start, int end)>();
-        public ACommand ACommand { get; private set; }
+        public ACommand ACommand { get; set; }
         private Dictionary<string, (int start, int end)> info = new Dictionary<string, (int start, int end)>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, (string trueName, string falseName)> conditions = new Dictionary<string, (string trueName, string falseName)>();
         public void AddInfo(string name, int startBit, int endBit)
@@ -166,7 +166,14 @@ namespace LC_3.Instruction
                     if (Properties.TryGetValue(next.Key, out var propertie))
                     {
                         var obj = propertie.GetValue(this.ACommand, null);
-                        SetValue(bin, (int)obj, next.Value.start, next.Value.end);
+                        if (propertie.PropertyType == typeof(bool))
+                        {
+                            SetValue(bin, (bool)obj ? 1 : 0, next.Value.start, next.Value.end);
+                        }
+                        else
+                        {
+                            SetValue(bin, (int)obj, next.Value.start, next.Value.end);
+                        }
                     }
                 }
                 index++;
@@ -175,7 +182,7 @@ namespace LC_3.Instruction
             {
                 for (int i = item.start; i <= item.end; i++)
                 {
-                    bin[i] = (char)1;
+                    bin[i] = '1';
                 }
             }
             return new string(bin);

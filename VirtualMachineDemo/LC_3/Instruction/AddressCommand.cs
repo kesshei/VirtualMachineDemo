@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace LC_3.Instruction
 {
-    public class STRINGZCommand : ACommand
+    public class AddressCommand : ACommand
     {
-        public STRINGZCommand() : base(InstructionSet.STRINGZ)
+        public AddressCommand() : base(InstructionSet.Address)
         {
-            
+            IsAddress = true;
         }
     }
 }

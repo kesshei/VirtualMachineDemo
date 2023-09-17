@@ -10,7 +10,7 @@ namespace LC_3.Instruction
     {
         public BLKWCommand() : base(InstructionSet.BLKW)
         {
-            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+ 
         }
     }
 }

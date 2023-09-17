@@ -10,7 +10,7 @@ namespace LC_3.Instruction
     {
         public FILLCommand() : base(InstructionSet.FILL)
         {
-            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+ 
         }
     }
 }

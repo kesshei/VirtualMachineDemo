@@ -12,11 +12,13 @@ namespace LC_3.Instruction
         public JSRCommand() : base(InstructionSet.JSR)
         {
             bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
-            bitInfo.AddDefault(11, 11);
+            bitInfo.AddInfo(nameof(this.IsOffset), 11, 11, nameof(this.PC), nameof(this.BaseR));
+            bitInfo.AddInfo(nameof(this.PC), 10, 0);
             bitInfo.AddInfo(nameof(this.BaseR), 8, 6);
         }
         public bool IsPC { get; set; }
         public int PC { get; set; }
+        public bool IsOffset { get; set; }  
         public Registers BaseR { get; set; }
     }
 }

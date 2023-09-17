@@ -13,7 +13,7 @@ namespace LC_3.Instruction
     {
         public RESCommand() : base(InstructionSet.RES)
         {
-            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+ 
         }
     }
 }

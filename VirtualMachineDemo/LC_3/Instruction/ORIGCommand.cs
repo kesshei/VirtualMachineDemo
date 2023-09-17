@@ -10,7 +10,7 @@ namespace LC_3.Instruction
     {
         public ORIGCommand() : base(InstructionSet.ORIG)
         {
-            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+ 
         }
     }
 }
