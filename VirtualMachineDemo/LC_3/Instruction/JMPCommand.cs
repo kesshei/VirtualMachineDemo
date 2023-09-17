@@ -10,34 +10,12 @@ namespace LC_3.Instruction
     {
         public JMPCommand() : base(InstructionSet.JMP)
         {
+            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+            bitInfo.AddInfo(nameof(this.BaseR), 8, 6);
         }
         public Registers BaseR { get; set; }
 
         public bool RET { get { return (int)BaseR == 111; } }
 
-        public override void ASMToCommand(string asm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(string bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(int bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToASM()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToBin()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -19,35 +19,5 @@ namespace LC_3.Instruction
         /// </summary>
         public Registers SR { get; set; }
         public int PC { get; set; }
-
-        public override void ASMToCommand(string asm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(string bin)
-        {
-            bitInfo.BinToCommand(bin);
-            var code = ToBin();
-            if (code == bin)
-            {
-                Console.WriteLine($"{nameof(STCommand)}编码解析成功!");
-            }
-        }
-
-        public override void BinToCommand(int bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToASM()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToBin()
-        {
-          return  bitInfo.ToBin();
-        }
     }
 }

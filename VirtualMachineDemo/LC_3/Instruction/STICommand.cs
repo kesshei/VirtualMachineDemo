@@ -10,33 +10,11 @@ namespace LC_3.Instruction
     {
         public STICommand() : base(InstructionSet.STI)
         {
+            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+            bitInfo.AddInfo(nameof(this.SR), 11, 9);
+            bitInfo.AddInfo(nameof(this.PC), 8, 0);
         }
         public Registers SR { get; set; }
         public int PC { get; set; }
-
-        public override void ASMToCommand(string asm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(string bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(int bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToASM()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToBin()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

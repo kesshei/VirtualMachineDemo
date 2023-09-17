@@ -19,10 +19,29 @@ namespace LC_3.Instruction
         public BitInfo bitInfo { get; set; }
         public string LableName { get; set; }
         public InstructionSet InstructionSet { get; private set; }
-        public abstract string ToBin();
-        public abstract string ToASM();
-        public abstract void BinToCommand(string bin);
-        public abstract void BinToCommand(int bin);
-        public abstract void ASMToCommand(string asm);
+        public virtual string ToBin()
+        {
+            return bitInfo.ToBin();
+        }
+        public virtual string ToASM()
+        {
+            return string.Empty;
+        }
+        public virtual void BinToCommand(string bin)
+        {
+            bitInfo.BinToCommand(bin);
+            var code = ToBin();
+            if (code == bin)
+            {
+                Console.WriteLine($"{InstructionSet}编码解析成功!");
+            }
+        }
+        public virtual void BinToCommand(int bin)
+        {
+         
+        }
+        public virtual void ASMToCommand(string asm)
+        {
+         }
     }
 }

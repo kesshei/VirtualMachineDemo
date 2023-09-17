@@ -10,6 +10,10 @@ namespace LC_3.Instruction
     {
         public LDRCommand() : base(InstructionSet.LDR)
         {
+            bitInfo.AddInfo(nameof(this.InstructionSet), 15, 12);
+            bitInfo.AddInfo(nameof(this.DR), 11, 9);
+            bitInfo.AddInfo(nameof(this.BaseR), 8, 6);
+            bitInfo.AddInfo(nameof(this.offset6), 5, 0);
         }
         /// <summary>
         /// 目标寄存器
@@ -17,30 +21,5 @@ namespace LC_3.Instruction
         public Registers DR { get; set; }
         public Registers BaseR { get; set; }
         public int offset6 { get; set; }
-
-        public override void ASMToCommand(string asm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(string bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void BinToCommand(int bin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToASM()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToBin()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
