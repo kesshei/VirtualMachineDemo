@@ -1,6 +1,7 @@
 ﻿using LC_3.Instruction;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace LC_3
         }
         public UInt16[] Memory = new UInt16[UInt16.MaxValue];
         public Dictionary<Registers, UInt16> Reg = new Dictionary<Registers, UInt16>();
+        public Dictionary<int, Action> Traps = new Dictionary<int, Action>();
         public UInt16 PC
         {
             get
@@ -37,13 +39,98 @@ namespace LC_3
                 Reg[Registers.PC] = value;
             }
         }
+        public UInt16 ReadMem(int address)
+        {
+            if (address < 0 || address >= Memory.Length)
+            {
+                throw new ArgumentOutOfRangeException("address out of memory");
+            }
+            return Memory[address];
+        }
+        public void WriteMem(int address, UInt16 value)
+        {
+            if (address < 0 || address >= Memory.Length)
+            {
+                throw new ArgumentOutOfRangeException("address out of memory");
+            }
+            Memory[address] = value;
+        }
         /// <summary>
         /// 标志寄存器
         /// </summary>
         public FlagRegister COND { get; set; }
         public void Run(ACommand[] program)
         {
+            while (true)
+            {
+                var cmd = program[PC];
 
+                switch (cmd.InstructionSet)
+                {
+                    case InstructionSet.ADD:
+                        Add((ADDCommand)cmd);
+                        break;
+                    case InstructionSet.AND:
+                        And((ANDCommand)cmd);
+                        break;
+                    case InstructionSet.NOT:
+                        Not((NOTCommand)cmd);
+                        break;
+                    case InstructionSet.BR:
+                        BR((BRCommand)cmd);
+                        break;
+                    case InstructionSet.JMP:
+                        Jump((JMPCommand)cmd);
+                        break;
+                    case InstructionSet.JSR:
+                        Jump_Subroutine((JSRCommand)cmd);
+                        break;
+                    case InstructionSet.LD:
+                        Load((LDCommand)cmd);
+                        break;
+                    case InstructionSet.LDI:
+                        Load_Indirect((LDICommand)cmd);
+                        break;
+                    case InstructionSet.LDR:
+                        Load_Register((LDRCommand)cmd);
+                        break;
+                    case InstructionSet.LEA:
+                        Load_Effective_address((LEACommand)cmd);
+                        break;
+                    case InstructionSet.ST:
+                        Store((STCommand)cmd);
+                        break;
+                    case InstructionSet.STI:
+                        Store_indirect((STICommand)cmd);
+                        break;
+                    case InstructionSet.STR:
+                        Store_register((STRCommand)cmd);
+                        break;
+                    case InstructionSet.TRAP:
+                        Trap((TRAPCommand)cmd);
+                        break;
+
+                    #region 未用
+                    case InstructionSet.RTI:
+                        break;
+                    case InstructionSet.RES:
+                        break;
+                    case InstructionSet.ORIG:
+                        break;
+                    case InstructionSet.FILL:
+                        break;
+                    case InstructionSet.BLKW:
+                        break;
+                    case InstructionSet.STRINGZ:
+                        break;
+                    case InstructionSet.END:
+                        break;
+                    case InstructionSet.Address:
+                        break;
+                        #endregion
+                }
+                PC++;
+            }
         }
         /// <summary>
         /// load asm
@@ -129,7 +216,7 @@ namespace LC_3
                         }
                         break;
                     case InstructionSet.NOT:
-                                            {
+                        {
                             aCommand = new NOTCommand();
                             aCommand.BinToCommand(item);
                         }
@@ -223,6 +310,140 @@ namespace LC_3
         public static ACommand[] LoadBin(List<int> bincode)
         {
             return null;
+        }
+        public void Update_flags(Registers reg)
+        {
+            Int16 value = (Int16)Reg[reg];
+            if (value == 0)
+            {
+                COND = FlagRegister.ZRO;
+            }
+            else if (value < 0)
+            {
+                // 最高位 1，负数
+                COND = FlagRegister.NEG;
+            }
+            else
+            {
+                COND = FlagRegister.POS;
+            }
+        }
+        public void Add(ADDCommand command)
+        {
+            if (command.IsImmediateNumber)
+            {
+                Reg[command.DR] = (ushort)(Reg[command.SR1] + command.ImmediateNumber);
+            }
+            else
+            {
+                Reg[command.DR] = (ushort)(Reg[command.SR1] + Reg[command.SR2]);
+            }
+            Console.WriteLine($"{command.DR} : {Reg[command.DR]}");
+            Update_flags(Registers.R0);
+        }
+        public void And(ANDCommand command)
+        {
+            if (command.IsImmediateNumber)
+            {
+                Reg[command.DR] = (ushort)(Reg[command.SR1] + command.ImmediateNumber);
+            }
+            else
+            {
+                Reg[command.DR] = (ushort)(Reg[command.SR1] + Reg[command.SR2]);
+            }
+            Console.WriteLine($"{command.DR} : {Reg[command.DR]}");
+            Update_flags(Registers.R0);
+        }
+        public void Not(NOTCommand command)
+        {
+            Reg[command.DR] = (ushort)~Reg[command.SR];
+            Update_flags(Registers.R0);
+        }
+        public void BR(BRCommand command)
+        {
+            var dic = new Dictionary<FlagRegister, bool>();
+            dic[FlagRegister.ZRO] = command.Z;
+            dic[FlagRegister.NEG] = command.N;
+            dic[FlagRegister.POS] = command.P;
+            var values = new List<bool>();
+            foreach (var item in dic)
+            {
+                if (item.Key == COND)
+                {
+                    values.Add(item.Value);
+                }
+                else
+                {
+                    values.Add(!item.Value);
+                }
+            }
+            if (!values.Any(t => !t))
+            {
+                PC = command.PC;
+            }
+        }
+        public void Jump(JMPCommand command)
+        {
+            PC = Reg[command.BaseR];
+        }
+        public void Load_Indirect(LDICommand command)
+        {
+            var address = ReadMem(command.PC + PC);
+            var data = ReadMem(address);
+            Reg[command.DR] = data;
+            Update_flags(command.DR);
+        }
+        public void Load_Effective_address(LEACommand command)
+        {
+            Reg[command.DR] = (ushort)(PC + command.PC);
+            Update_flags(command.DR);
+        }
+        public void Jump_Subroutine(JSRCommand command)
+        {
+            Reg[Registers.R7] = PC;
+            if (command.IsOffset)
+            {
+                PC = (ushort)(PC + command.PC);
+            }
+            else
+            {
+                PC = Reg[command.BaseR];
+            }
+        }
+        public void Load(LDCommand command)
+        {
+            Reg[command.DR] = ReadMem(command.PC + PC);
+            Update_flags(command.DR);
+        }
+        public void Load_Register(LDRCommand command)
+        {
+            var address = Reg[command.BaseR] + command.offset6;
+            var value = ReadMem(address);
+            Reg[command.DR] = value;
+            Update_flags(command.DR);
+        }
+        public void Store(STCommand command)
+        {
+            var address = command.PC + PC;
+            var value = Reg[command.SR];
+            WriteMem(address, value);
+        }
+        public void Store_indirect(STICommand command)
+        {
+            var address = PC + command.PC;
+            var value = Reg[command.SR];
+            WriteMem(address, value);
+        }
+        public void Store_register(STRCommand command)
+        {
+            var address = Reg[command.BaseR] + command.offset6;
+            var value = Reg[command.SR];
+            WriteMem(address, value);
+        }
+        public void Trap(TRAPCommand command)
+        {
+            Traps.TryGetValue(command.Trapverct, out var action);
+            action?.Invoke();
         }
     }
     /// <summary>

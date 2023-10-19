@@ -18,6 +18,6 @@ namespace LC_3.Instruction
         /// 目标寄存器
         /// </summary>
         public Registers DR { get; set; }
-        public int PC { get; set; }
+        public ushort PC { get; set; }
     }
 }

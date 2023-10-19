@@ -20,6 +20,6 @@ namespace LC_3.Instruction
         /// </summary>
         public Registers DR { get; set; }
         public Registers BaseR { get; set; }
-        public int offset6 { get; set; }
+        public ushort offset6 { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace LC_3.Instruction
         public bool N { get; set; }
         public bool Z { get; set; }
         public bool P { get; set; }
-        public int PC { get; set; }
+        public ushort PC { get; set; }
 
     }
 }

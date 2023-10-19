@@ -26,7 +26,7 @@ namespace LC_3.Instruction
         /// </summary>
         public Registers SR1 { get; set; }
         public bool IsImmediateNumber { get; set; }
-        public int ImmediateNumber { get; set; }
+        public ushort ImmediateNumber { get; set; }
         /// <summary>
         /// 源寄存器2
         /// </summary>

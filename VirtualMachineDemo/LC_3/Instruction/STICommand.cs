@@ -15,6 +15,6 @@ namespace LC_3.Instruction
             bitInfo.AddInfo(nameof(this.PC), 8, 0);
         }
         public Registers SR { get; set; }
-        public int PC { get; set; }
+        public ushort PC { get; set; }
     }
 }

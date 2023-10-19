@@ -16,8 +16,7 @@ namespace LC_3.Instruction
             bitInfo.AddInfo(nameof(this.PC), 10, 0);
             bitInfo.AddInfo(nameof(this.BaseR), 8, 6);
         }
-        public bool IsPC { get; set; }
-        public int PC { get; set; }
+        public ushort PC { get; set; }
         public bool IsOffset { get; set; }  
         public Registers BaseR { get; set; }
     }
