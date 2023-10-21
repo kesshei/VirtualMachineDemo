@@ -31,6 +31,6 @@ namespace LC_3.Instruction
         /// 源寄存器2
         /// </summary>
         public Registers SR2 { get; set; }
-        public int ImmediateNumber { get; set; }
+        public UInt16 ImmediateNumber { get; set; }
     }
 }

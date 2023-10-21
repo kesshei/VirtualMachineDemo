@@ -103,7 +103,7 @@ namespace LC_3.Instruction
         {
             var bin = new char[16];
             bin = bin.Select(t => '0').ToArray();
-            int getValue(string name, Dictionary<string, (int start, int end)> set, Dictionary<string, PropertyInfo> PropertyInfos)
+            UInt16 getValue(string name, Dictionary<string, (int start, int end)> set, Dictionary<string, PropertyInfo> PropertyInfos)
             {
                 var Property = PropertyInfos[name];
                 var obj = Property.GetValue(this.ACommand, null);
@@ -118,7 +118,7 @@ namespace LC_3.Instruction
                         return 0;
                     }
                 }
-                return (int)obj;
+                return (UInt16)obj;
             }
             void SetValue(char[] b, int value, int start, int end)
             {

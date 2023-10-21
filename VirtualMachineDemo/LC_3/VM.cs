@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,13 +20,13 @@ namespace LC_3
     {
         public VM()
         {
-            Memory = new ushort[UInt16.MaxValue];
+            Memory = new string[UInt16.MaxValue];
             foreach (Registers item in Enum.GetValues(typeof(Registers)))
             {
                 Reg.Add(item, 0);
             }
         }
-        public UInt16[] Memory = new UInt16[UInt16.MaxValue];
+        public string[] Memory = new string[UInt16.MaxValue];
         public Dictionary<Registers, UInt16> Reg = new Dictionary<Registers, UInt16>();
         public Dictionary<int, Action> Traps = new Dictionary<int, Action>();
         public UInt16 PC
@@ -45,7 +46,7 @@ namespace LC_3
             {
                 throw new ArgumentOutOfRangeException("address out of memory");
             }
-            return Memory[address];
+            return ushort.Parse(Memory[address]);
         }
         public void WriteMem(int address, UInt16 value)
         {
@@ -53,18 +54,18 @@ namespace LC_3
             {
                 throw new ArgumentOutOfRangeException("address out of memory");
             }
-            Memory[address] = value;
+            Memory[address] = value.ToString();
         }
         /// <summary>
         /// 标志寄存器
         /// </summary>
         public FlagRegister COND { get; set; }
-        public void Run(ACommand[] program)
+        public void Run()
         {
             while (true)
             {
-                var cmd = program[PC];
-
+                var info = Memory[PC];
+                var cmd = GetCommand(info);
                 switch (cmd.InstructionSet)
                 {
                     case InstructionSet.ADD:
@@ -115,11 +116,11 @@ namespace LC_3
                         break;
                     case InstructionSet.RES:
                         break;
-                    case InstructionSet.ORIG:
-                        break;
                     case InstructionSet.FILL:
                         break;
                     case InstructionSet.BLKW:
+                        break;
+                    case InstructionSet.ORIG:
                         break;
                     case InstructionSet.STRINGZ:
                         break;
@@ -133,184 +134,317 @@ namespace LC_3
             }
         }
         /// <summary>
-        /// load asm
+        /// load bin 
+        /// 二进制
         /// </summary>
-        public static ACommand[] LoadAsm(string[] asm)
+        public void LoadBin(string[] bincode)
         {
-            foreach (var item in asm)
+            var ORIG_Base = Convert.ToUInt16(bincode.First(), 2);
+            var ORIG = ORIG_Base;
+            foreach (var item in bincode.Skip(1))
             {
+                Memory[ORIG] = item;
+                ORIG++;
+            }
+            PC = ORIG_Base;
+        }
+        /// <summary>
+        /// load bin 
+        /// 二进制
+        /// </summary>
+        public static ACommand GetCommand(string item)
+        {
+            InstructionSet set = (InstructionSet)Convert.ToInt32(new string(item.Take(4).ToArray()), 2);
+            ACommand aCommand = null;
+            switch (set)
+            {
+                case InstructionSet.BR:
+                    {
+                        aCommand = new BRCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.ADD:
+                    {
+                        aCommand = new ADDCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.LD:
+                    {
+                        aCommand = new LDCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.ST:
+                    {
+                        aCommand = new STCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.JSR:
+                    {
+                        aCommand = new JSRCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.AND:
+                    {
+                        aCommand = new ANDCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.LDR:
+                    {
+                        aCommand = new LDRCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.STR:
+                    {
+                        aCommand = new STRCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.RTI:
+                    {
+                        aCommand = new RTICommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.NOT:
+                    {
+                        aCommand = new NOTCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.LDI:
+                    {
+                        aCommand = new LDICommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.STI:
+                    {
+                        aCommand = new STICommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.JMP:
+                    {
+                        aCommand = new JMPCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.RES:
+                    {
+                        aCommand = new RESCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.LEA:
+                    {
+                        aCommand = new LEACommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.TRAP:
+                    {
+                        aCommand = new TRAPCommand();
+                        if (aCommand.Check(item))
+                        {
+                            aCommand.BinToCommand(item);
+                        }
+                        else
+                        {
+                            aCommand = new AddressCommand();
+                            aCommand.BinToCommand(item);
+                        }
+                    }
+                    break;
+                case InstructionSet.FILL:
+                    {
+                        aCommand = new FILLCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.BLKW:
+                    {
+                        aCommand = new BLKWCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.STRINGZ:
+                    {
+                        aCommand = new STRINGZCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+                case InstructionSet.END:
+                    {
+                        aCommand = new ENDCommand();
+                        aCommand.BinToCommand(item);
+                    }
+                    break;
+            }
+            return aCommand;
+        }
+        ///// <summary>
+        ///// load bin 
+        ///// 二进制
+        ///// </summary>
+        //public static ACommand[] LoadBin(string[] bincode)
+        //{
+        //    bincode = bincode.Select(t => new string(t.Take(16).ToArray())).ToArray();
+        //    var aCommands = new List<ACommand>();
+        //    if (bincode.Where(t => t.Length != 16).Any())
+        //    {
+        //        throw new Exception("非二进制码");
+        //    }
+        //    aCommands.Add(new ORIGCommand(bincode.First()));
 
-            }
-            return null;
-        }
-        /// <summary>
-        /// load bin 
-        /// 二进制
-        /// </summary>
-        public static ACommand[] LoadBin(string[] bincode)
-        {
-            bincode = bincode.Select(t => new string(t.Take(16).ToArray())).ToArray();
-            var aCommands = new List<ACommand>();
-            if (bincode.Where(t => t.Length != 16).Any())
-            {
-                throw new Exception("非二进制码");
-            }
-            foreach (var item in bincode)
-            {
-                InstructionSet set = (InstructionSet)Convert.ToInt32(new string(item.Take(4).ToArray()), 2);
-                ACommand aCommand = null;
-                switch (set)
-                {
-                    case InstructionSet.BR:
-                        {
-                            aCommand = new BRCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.ADD:
-                        {
-                            aCommand = new ADDCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.LD:
-                        {
-                            aCommand = new LDCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.ST:
-                        {
-                            aCommand = new STCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.JSR:
-                        {
-                            aCommand = new JSRCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.AND:
-                        {
-                            aCommand = new ANDCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.LDR:
-                        {
-                            aCommand = new LDRCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.STR:
-                        {
-                            aCommand = new STRCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.RTI:
-                        {
-                            aCommand = new RTICommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.NOT:
-                        {
-                            aCommand = new NOTCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.LDI:
-                        {
-                            aCommand = new LDICommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.STI:
-                        {
-                            aCommand = new STICommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.JMP:
-                        {
-                            aCommand = new JMPCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.RES:
-                        {
-                            aCommand = new RESCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.LEA:
-                        {
-                            aCommand = new LEACommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.TRAP:
-                        {
-                            aCommand = new TRAPCommand();
-                            if (aCommand.Check(item))
-                            {
-                                aCommand.BinToCommand(item);
-                            }
-                            else
-                            {
-                                aCommand = new AddressCommand();
-                                aCommand.BinToCommand(item);
-                            }
-                        }
-                        break;
-                    case InstructionSet.ORIG:
-                        {
-                            aCommand = new ORIGCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.FILL:
-                        {
-                            aCommand = new FILLCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.BLKW:
-                        {
-                            aCommand = new BLKWCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.STRINGZ:
-                        {
-                            aCommand = new STRINGZCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                    case InstructionSet.END:
-                        {
-                            aCommand = new ENDCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                        break;
-                }
-                if (aCommand != null)
-                {
-                    aCommands.Add(aCommand);
-                }
-            }
-            return aCommands.ToArray();
-        }
-        /// <summary>
-        /// load bin 
-        /// 二进制
-        /// </summary>
-        public static ACommand[] LoadBin(List<int> bincode)
-        {
-            return null;
-        }
+        //    foreach (var item in bincode.Skip(1))
+        //    {
+        //        InstructionSet set = (InstructionSet)Convert.ToInt32(new string(item.Take(4).ToArray()), 2);
+        //        ACommand aCommand = null;
+        //        switch (set)
+        //        {
+        //            case InstructionSet.BR:
+        //                {
+        //                    aCommand = new BRCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.ADD:
+        //                {
+        //                    aCommand = new ADDCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.LD:
+        //                {
+        //                    aCommand = new LDCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.ST:
+        //                {
+        //                    aCommand = new STCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.JSR:
+        //                {
+        //                    aCommand = new JSRCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.AND:
+        //                {
+        //                    aCommand = new ANDCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.LDR:
+        //                {
+        //                    aCommand = new LDRCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.STR:
+        //                {
+        //                    aCommand = new STRCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.RTI:
+        //                {
+        //                    aCommand = new RTICommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.NOT:
+        //                {
+        //                    aCommand = new NOTCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.LDI:
+        //                {
+        //                    aCommand = new LDICommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.STI:
+        //                {
+        //                    aCommand = new STICommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.JMP:
+        //                {
+        //                    aCommand = new JMPCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.RES:
+        //                {
+        //                    aCommand = new RESCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.LEA:
+        //                {
+        //                    aCommand = new LEACommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.TRAP:
+        //                {
+        //                    aCommand = new TRAPCommand();
+        //                    if (aCommand.Check(item))
+        //                    {
+        //                        aCommand.BinToCommand(item);
+        //                    }
+        //                    else
+        //                    {
+        //                        aCommand = new AddressCommand();
+        //                        aCommand.BinToCommand(item);
+        //                    }
+        //                }
+        //                break;
+        //            case InstructionSet.FILL:
+        //                {
+        //                    aCommand = new FILLCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.BLKW:
+        //                {
+        //                    aCommand = new BLKWCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.STRINGZ:
+        //                {
+        //                    aCommand = new STRINGZCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //            case InstructionSet.END:
+        //                {
+        //                    aCommand = new ENDCommand();
+        //                    aCommand.BinToCommand(item);
+        //                }
+        //                break;
+        //        }
+        //        if (aCommand != null)
+        //        {
+        //            aCommands.Add(aCommand);
+        //        }
+        //    }
+        //    return aCommands.ToArray();
+        //}
         public void Update_flags(Registers reg)
         {
             Int16 value = (Int16)Reg[reg];
@@ -447,7 +581,7 @@ namespace LC_3
         }
     }
     /// <summary>
-    /// 寄存器
+    /// 寄存器定义
     /// </summary>
     public enum Registers
     {
