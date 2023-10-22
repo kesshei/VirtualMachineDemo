@@ -25,10 +25,16 @@ namespace LC_3
             {
                 Reg.Add(item, 0);
             }
+            Traps.Add(TrapSet.TRAP_GETC, Trap_GETC);
+            Traps.Add(TrapSet.TRAP_OUT, TRAP_OUT);
+            Traps.Add(TrapSet.TRAP_PUTS, TRAP_PUTS);
+            Traps.Add(TrapSet.TARP_IN, TRAP_IN);
+            Traps.Add(TrapSet.TRAP_PUTSP, TRAP_PUTSP);
+            Traps.Add(TrapSet.TRAP_HALT, TRAP_HALT);
         }
         public string[] Memory = new string[UInt16.MaxValue];
         public Dictionary<Registers, UInt16> Reg = new Dictionary<Registers, UInt16>();
-        public Dictionary<int, Action> Traps = new Dictionary<int, Action>();
+        public Dictionary<TrapSet, Action> Traps = new Dictionary<TrapSet, Action>();
         public UInt16 PC
         {
             get
@@ -60,9 +66,11 @@ namespace LC_3
         /// 标志寄存器
         /// </summary>
         public FlagRegister COND { get; set; }
+        public bool IsRuning { get; private set; }
         public void Run()
         {
-            while (true)
+            IsRuning = true;
+            while (IsRuning)
             {
                 var info = Memory[PC];
                 var cmd = GetCommand(info);
@@ -116,22 +124,11 @@ namespace LC_3
                         break;
                     case InstructionSet.RES:
                         break;
-                    case InstructionSet.FILL:
-                        break;
-                    case InstructionSet.BLKW:
-                        break;
-                    case InstructionSet.ORIG:
-                        break;
-                    case InstructionSet.STRINGZ:
-                        break;
-                    case InstructionSet.END:
-                        break;
-                    case InstructionSet.Address:
-                        break;
                         #endregion
                 }
                 PC++;
             }
+            Console.WriteLine("虚拟机停止了运行!");
         }
         /// <summary>
         /// load bin 
@@ -251,200 +248,79 @@ namespace LC_3
                 case InstructionSet.TRAP:
                     {
                         aCommand = new TRAPCommand();
-                        if (aCommand.Check(item))
-                        {
-                            aCommand.BinToCommand(item);
-                        }
-                        else
-                        {
-                            aCommand = new AddressCommand();
-                            aCommand.BinToCommand(item);
-                        }
-                    }
-                    break;
-                case InstructionSet.FILL:
-                    {
-                        aCommand = new FILLCommand();
-                        aCommand.BinToCommand(item);
-                    }
-                    break;
-                case InstructionSet.BLKW:
-                    {
-                        aCommand = new BLKWCommand();
-                        aCommand.BinToCommand(item);
-                    }
-                    break;
-                case InstructionSet.STRINGZ:
-                    {
-                        aCommand = new STRINGZCommand();
-                        aCommand.BinToCommand(item);
-                    }
-                    break;
-                case InstructionSet.END:
-                    {
-                        aCommand = new ENDCommand();
                         aCommand.BinToCommand(item);
                     }
                     break;
             }
             return aCommand;
         }
-        ///// <summary>
-        ///// load bin 
-        ///// 二进制
-        ///// </summary>
-        //public static ACommand[] LoadBin(string[] bincode)
-        //{
-        //    bincode = bincode.Select(t => new string(t.Take(16).ToArray())).ToArray();
-        //    var aCommands = new List<ACommand>();
-        //    if (bincode.Where(t => t.Length != 16).Any())
-        //    {
-        //        throw new Exception("非二进制码");
-        //    }
-        //    aCommands.Add(new ORIGCommand(bincode.First()));
+        public void Trap_GETC()
+        {
+            Console.WriteLine("Trap_GETC  begin");
+            Console.WriteLine("请输入一个字符:");
+            Reg[Registers.R0] = (UInt16)Console.Read();
+            Console.WriteLine("Trap_GETC  end");
+        }
+        public void TRAP_OUT()
+        {
+            Console.WriteLine("TRAP_OUT  begin");
+            Console.WriteLine((char)Reg[Registers.R0]);
+            Console.WriteLine("TRAP_OUT  end");
+        }
+        public void TRAP_PUTS()
+        {
+            Console.WriteLine("TRAP_PUTS  begin");
+            var adress = Reg[Registers.R0];
+            while (true)
+            {
+                adress++;
+                var c = Memory[adress];
+                var cc = (char)Convert.ToUInt16(c, 2);
+                if (cc == '\0')
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                Console.Write(cc);
+            }
+            Console.WriteLine("TRAP_PUTS  end");
+        }
+        public void TRAP_IN()
+        {
+            Console.WriteLine("TRAP_IN  begin");
+            Console.WriteLine("请输入一个字符:");
+            var c = Console.Read();
+            Console.WriteLine(c);
+            Reg[Registers.R0] = (UInt16)c;
+            Console.WriteLine("TRAP_IN  end");
+        }
+        public void TRAP_PUTSP()
+        {
+            Console.WriteLine("TRAP_PUTSP  begin");
 
-        //    foreach (var item in bincode.Skip(1))
-        //    {
-        //        InstructionSet set = (InstructionSet)Convert.ToInt32(new string(item.Take(4).ToArray()), 2);
-        //        ACommand aCommand = null;
-        //        switch (set)
-        //        {
-        //            case InstructionSet.BR:
-        //                {
-        //                    aCommand = new BRCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.ADD:
-        //                {
-        //                    aCommand = new ADDCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.LD:
-        //                {
-        //                    aCommand = new LDCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.ST:
-        //                {
-        //                    aCommand = new STCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.JSR:
-        //                {
-        //                    aCommand = new JSRCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.AND:
-        //                {
-        //                    aCommand = new ANDCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.LDR:
-        //                {
-        //                    aCommand = new LDRCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.STR:
-        //                {
-        //                    aCommand = new STRCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.RTI:
-        //                {
-        //                    aCommand = new RTICommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.NOT:
-        //                {
-        //                    aCommand = new NOTCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.LDI:
-        //                {
-        //                    aCommand = new LDICommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.STI:
-        //                {
-        //                    aCommand = new STICommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.JMP:
-        //                {
-        //                    aCommand = new JMPCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.RES:
-        //                {
-        //                    aCommand = new RESCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.LEA:
-        //                {
-        //                    aCommand = new LEACommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.TRAP:
-        //                {
-        //                    aCommand = new TRAPCommand();
-        //                    if (aCommand.Check(item))
-        //                    {
-        //                        aCommand.BinToCommand(item);
-        //                    }
-        //                    else
-        //                    {
-        //                        aCommand = new AddressCommand();
-        //                        aCommand.BinToCommand(item);
-        //                    }
-        //                }
-        //                break;
-        //            case InstructionSet.FILL:
-        //                {
-        //                    aCommand = new FILLCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.BLKW:
-        //                {
-        //                    aCommand = new BLKWCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.STRINGZ:
-        //                {
-        //                    aCommand = new STRINGZCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //            case InstructionSet.END:
-        //                {
-        //                    aCommand = new ENDCommand();
-        //                    aCommand.BinToCommand(item);
-        //                }
-        //                break;
-        //        }
-        //        if (aCommand != null)
-        //        {
-        //            aCommands.Add(aCommand);
-        //        }
-        //    }
-        //    return aCommands.ToArray();
-        //}
+            var adress = Reg[Registers.R0];
+            while (true)
+            {
+                adress++;
+                var c = Memory[adress];
+                var cc = (char)Convert.ToUInt16(c, 2);
+                if (cc == '\0')
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                Console.Write(cc);
+            }
+            Console.WriteLine("TRAP_PUTSP  end");
+        }
+        public void TRAP_HALT()
+        {
+            IsRuning = false;
+            Console.WriteLine("Halt");
+            Console.WriteLine("准备停止运行!");
+        }
+
+
         public void Update_flags(Registers reg)
         {
             Int16 value = (Int16)Reg[reg];
@@ -576,9 +452,36 @@ namespace LC_3
         }
         public void Trap(TRAPCommand command)
         {
-            Traps.TryGetValue(command.Trapverct, out var action);
+            Traps.TryGetValue((TrapSet)command.Trapverct, out var action);
             action?.Invoke();
         }
+    }
+    public enum TrapSet
+    {
+        /// <summary>
+        /// 从键盘输入
+        /// </summary>
+        TRAP_GETC = 0x20,
+        /// <summary>
+        /// 输出字符
+        /// </summary>
+        TRAP_OUT = 0x21,
+        /// <summary>
+        /// 输出字符串
+        /// </summary>
+        TRAP_PUTS = 0x22,
+        /// <summary>
+        /// 打印输入提示，读取单个字符
+        /// </summary>
+        TARP_IN = 0x23,
+        /// <summary>
+        /// 输出字符串
+        /// </summary>
+        TRAP_PUTSP = 0x24,
+        /// <summary>
+        /// 退出程序
+        /// </summary>
+        TRAP_HALT = 0x25,
     }
     /// <summary>
     /// 寄存器定义
@@ -673,27 +576,6 @@ namespace LC_3
         /// <summary>
         /// 陷阱，中断，系统函数调用
         /// </summary>
-        TRAP = 15,
-        /// <summary>
-        /// 告诉汇编器将程序放在内存的哪个位置。
-        /// </summary>
-        ORIG = 100,
-        /// <summary>
-        /// 占用一个地址，并往地址所指向的内存单元填充初始值。 
-        /// </summary>
-        FILL,
-        /// <summary>
-        /// 占用连续的地址空间。
-        /// </summary>
-        BLKW,
-        /// <summary>
-        /// 连续占用地址空间，并对其初始化，内存最后一个单元被置为x0000，类似C语言的/0。
-        /// </summary>
-        STRINGZ,
-        /// <summary>
-        /// 源程序结束。 
-        /// </summary>
-        END,
-        Address
+        TRAP = 15
     }
 }

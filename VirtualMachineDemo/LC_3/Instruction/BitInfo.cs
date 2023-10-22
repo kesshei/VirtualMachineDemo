@@ -103,7 +103,7 @@ namespace LC_3.Instruction
         {
             var bin = new char[16];
             bin = bin.Select(t => '0').ToArray();
-            UInt16 getValue(string name, Dictionary<string, (int start, int end)> set, Dictionary<string, PropertyInfo> PropertyInfos)
+            int getValue(string name, Dictionary<string, (int start, int end)> set, Dictionary<string, PropertyInfo> PropertyInfos)
             {
                 var Property = PropertyInfos[name];
                 var obj = Property.GetValue(this.ACommand, null);
@@ -118,7 +118,15 @@ namespace LC_3.Instruction
                         return 0;
                     }
                 }
-                return (UInt16)obj;
+                else if (Property.PropertyType == typeof(UInt16))
+                {
+                    return (int)((UInt16)obj);
+                }
+                else if (Property.PropertyType == typeof(bool))
+                {
+                    return (int)obj;
+                }
+                return (int)obj;
             }
             void SetValue(char[] b, int value, int start, int end)
             {
@@ -169,6 +177,10 @@ namespace LC_3.Instruction
                         if (propertie.PropertyType == typeof(bool))
                         {
                             SetValue(bin, (bool)obj ? 1 : 0, next.Value.start, next.Value.end);
+                        }
+                        else if (propertie.PropertyType == typeof(UInt16))
+                        {
+                            SetValue(bin, (UInt16)obj, next.Value.start, next.Value.end);
                         }
                         else
                         {
